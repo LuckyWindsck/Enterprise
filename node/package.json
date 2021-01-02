@@ -2,7 +2,6 @@
   "name": "enterprise-web",
   "version": "3.0.8-xp-tm",
   "description": "Enterprise™ programming language for the Web3.0™",
-  "main": "index.js",
   "author": "Juan Lulkin <maiz@lulk.in> (https://medium.com/@joaomilho/)",
   "license": "/© This code is property of Enterprise™. ©/",
   "homepage": "https://github.com/joaomilho/Enterprise-Web3.0",
@@ -17,7 +16,8 @@
     "yargs": "^15.3.1"
   },
   "scripts": {
-    "test": "echo 'ITS OK DAMNIT'"
+    "test": "echo 'ITS OK DAMNIT'",
+    "peg": "node ./scripts/build.js"
   },
   "bin": {
     "E™": "./bin/E™",

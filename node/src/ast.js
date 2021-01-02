@@ -3,7 +3,7 @@
 ©*/
 
 const fs = require('fs')
-const enterprise = require('./enterprise')
+const enterprise = require('./parser/enterprise')
 
 module.exports = (file) => {
   return enterprise.parse(fs.readFileSync(file, 'utf8'))
