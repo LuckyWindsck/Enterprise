@@ -22,5 +22,10 @@
     "E™": "./bin/E™",
     "ETM": "./bin/E™",
     "enterprise-web": "./bin/E™"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0 || ^6.8.0 || ^7.2.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1"
   }
 }
