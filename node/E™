@@ -34,7 +34,7 @@ const option = {
 require('yargs')
   .option(...option.turbo)
   .command({
-    command: 'compile [input]',
+    command: 'compile <input>',
     description: 'Compile',
     builder: (yargs) => yargs.positional(...option.input).option(...option.output),
     handler: (argv) => {
@@ -48,7 +48,7 @@ require('yargs')
     },
   })
   .command({
-    command: 'ast [input]',
+    command: 'ast <input>',
     description: 'Display ast',
     builder: (yargs) => yargs.positional(...option.input),
     handler: (argv) => {
@@ -56,7 +56,7 @@ require('yargs')
     },
   })
   .command({
-    command: 'eval [input]',
+    command: 'eval <input>',
     description: 'Eval',
     builder: (yargs) => yargs.positional(...option.input),
     handler: (argv) => {
@@ -67,4 +67,5 @@ require('yargs')
     command: 'examples',
     description: 'Downloads examples',
     handler: (argv) => {},
-  }).argv
+  })
+  .argv
