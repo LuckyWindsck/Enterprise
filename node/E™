@@ -29,7 +29,7 @@ require('yargs')
   })
   .command({
     command: 'ast [input]',
-    description: 'Compile',
+    description: 'Display ast',
     handler: (argv) => {
       console.log(JSON.stringify(ast(argv.input), null, 2))
     },
