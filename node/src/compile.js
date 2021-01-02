@@ -104,12 +104,14 @@ const displayError = (e, file) => {
 };
 
 // eslint-disable-next-line consistent-return
-module.exports = (file, turbo) => {
+module.exports = (file, turbo, evalMode) => {
   global.turbo = turbo;
 
   try {
     const ast = parseAST(file);
-    return beautify(compile(ast), { indent_size: 2, space_in_empty_paren: true });
+    const compiled = compile(ast);
+
+    return evalMode ? compiled : beautify(compiled, { indent_size: 2, space_in_empty_paren: true });
   } catch (e) {
     if (e instanceof CompileError) {
       displayError(e, file);

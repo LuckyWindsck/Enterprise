@@ -62,7 +62,7 @@ require('yargs')
     builder: (yargs) => yargs.positional(...option.input),
     handler: (argv) => {
       // eslint-disable-next-line no-eval
-      eval(compile(argv.input, argv.turbo));
+      eval(compile(argv.input, argv.turbo, true));
     },
   })
   .command({
