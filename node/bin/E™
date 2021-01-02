@@ -35,6 +35,14 @@ const option = {
 require('yargs')
   .option(...option.turbo)
   .command({
+    command: 'ast <input>',
+    description: 'Display ast',
+    builder: (yargs) => yargs.positional(...option.input),
+    handler: (argv) => {
+      console.log(JSON.stringify(ast(argv.input), null, 2));
+    },
+  })
+  .command({
     command: 'compile <input>',
     description: 'Compile',
     builder: (yargs) => yargs.positional(...option.input).option(...option.output),
@@ -46,14 +54,6 @@ require('yargs')
       } else {
         console.log(code);
       }
-    },
-  })
-  .command({
-    command: 'ast <input>',
-    description: 'Display ast',
-    builder: (yargs) => yargs.positional(...option.input),
-    handler: (argv) => {
-      console.log(JSON.stringify(ast(argv.input), null, 2));
     },
   })
   .command({

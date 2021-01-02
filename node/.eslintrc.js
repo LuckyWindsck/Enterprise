@@ -17,5 +17,7 @@ module.exports = {
         allow: ['log'],
       },
     ],
+    'import/no-dynamic-require': 'off',
+    'global-require': 'off',
   },
 };

@@ -10,113 +10,143 @@ const parseAST = require('./ast');
 const CompileError = require('./CompileError');
 const dls = require('./dls');
 
-const delay = (fnCall) => (
-  global.turbo
+const delay = (turbo) => (fnCall) => (
+  turbo
     ? fnCall
-    : `await new Promise(r => {
-    setTimeout(async () => { r(await ${fnCall}) }, 1000)
-  })`
+    : `await new Promise((resolve) => {\nsetTimeout(async () => { resolve(await ${fnCall}) }, 1000)\n})`
 );
 
-const compile = (ast) => {
+const compile = (turbo) => function compileNodeList(ast) {
   const compileNode = (node) => {
+    let code = '';
+
     switch (node.type) {
       case 'comment':
-        return null;
+        break;
       case 'import':
-        // eslint-disable-next-line import/no-dynamic-require, global-require
-        return require(`./lib/disruptiveLibs/${node.lib}`).code;
+        code = `${require(`./lib/disruptiveLibs/${node.lib}`).code}\n`;
+        break;
       case 'finalDisruptiveClass':
-        return `class ${node.name} { ${compile(node.body)} }
-
-new ${node.name}().main()`;
+        code = `class ${node.name} { ${compileNodeList(node.body)} }\n\n(new ${node.name}()).main()`;
+        break;
       case 'mainMethod':
-        return `async main () {
-  ${compile(node.body)}
-}`;
+        code = `async main () {\n${compileNodeList(node.body)}\n}`;
+        break;
       case 'var':
-        return `var ${node.name} = ${compileNode(node.value)}`;
+        code = `var ${node.name} = ${compileNode(node.value)}`;
+        break;
       case 'while':
-        return `while (${compileNode(node.test)}) {
-  ${compile(node.body)}
-}`;
+        code = `while (${compileNode(node.test)}) {\n${compileNodeList(node.body)}\n}`;
+        break;
       case 'if':
-        return `if (${compileNode(node.test)}) {
-  ${compile(node.then)}
-} else {
-  ${compile(node.else)}
-}`;
+        code = `if (${compileNode(node.test)}) {\n${compileNodeList(node.then)}\n} else {\n${compileNodeList(node.else)}\n}`;
+        break;
       case 'binary':
-        return `${compileNode(node.left)} ${node.operator} ${compileNode(node.right)}`;
+        code = `${compileNode(node.left)} ${node.operator} ${compileNode(node.right)}`;
+        break;
       case 'call':
-        return delay(`${node.callee}(${node.args.map(compileNode).join(', ')})`);
+        code = delay(turbo)(`${node.callee}(${node.args.map(compileNode).join(', ')})`);
+        break;
       case 'mutate':
-        return `${node.var}${node.mutation}`;
+        code = `${node.var}${node.mutation}`;
+        break;
       case 'varName':
       case 'numVarName':
-        return node.value;
+        code = node.value;
+        break;
       default:
-        return JSON.stringify(node);
+        code = JSON.stringify(node);
+        break;
     }
+
+    return code;
   };
 
   return ast.map(compileNode).filter(Boolean).join('\n');
 };
 
-const pad = (len) => (idx) => gray(`${`${idx + 1}`.padStart(len + 1)} |`);
+const formatCodeError = (file, location) => {
+  const pipe = (input, pipelines) => pipelines.reduce((arg, fn) => fn(arg), input);
 
-const code = (file, location) => {
-  const sourceLines = fs.readFileSync(file, 'utf8').split('\n');
-  const len = sourceLines.length.toString().length;
-  const padLen = pad(len);
-  const r = sourceLines.map((line, i) => `${padLen(i)} ${line}`);
+  const hintError = (errorLineNumber) => ([...errorCode]) => {
+    const dashLine = gray('-'.repeat(location.start.column - 1));
+    const redCarets = red('^'.repeat(location.end.column - location.start.column));
+    const errorLine = dashLine + redCarets;
 
-  r.splice(
-    location.start.line,
-    0,
-    `${''.padEnd(len + 4)}${gray(
-      ''.padEnd(location.start.column - 1, '-'),
-    )}${red(''.padEnd(location.end.column - location.start.column, '^'))}`,
-  );
-  return r.join('\n');
+    errorCode.splice(errorLineNumber, 0, { lineContent: errorLine, numberable: false });
+
+    return errorCode;
+  };
+
+  const numberLine = (separator = '') => (codeLines) => {
+    const codeLengthDigitCount = codeLines.length.toString().length;
+
+    return codeLines.map((codeLine, idx) => {
+      let { lineContent, numberable } = codeLine;
+      let numberString = '';
+
+      if (numberable) {
+        const lineNumber = String(idx + 1).padStart(codeLengthDigitCount);
+
+        numberString = lineNumber + separator;
+        numberable = false;
+      } else {
+        const hiddenLineNumber = ' '.repeat(codeLengthDigitCount);
+        const hiddenSeparator = ' '.repeat(separator.length);
+
+        numberString = hiddenLineNumber + hiddenSeparator;
+      }
+
+      lineContent = gray(numberString) + lineContent;
+
+      return { lineContent, numberable };
+    });
+  };
+
+  const sourceLines = fs.readFileSync(file, 'utf8')
+    .split('\n')
+    .map((line) => ({ lineContent: line, numberable: true }));
+  const errorLineNumber = location.start.line;
+  const paddingSpaceLength = 1;
+  const separator = ' | ';
+
+  return pipe(sourceLines, [hintError(errorLineNumber), numberLine(separator)])
+    .map(({ lineContent }) => ' '.repeat(paddingSpaceLength) + lineContent)
+    .join('\n');
 };
 
-const displayError = (e, file) => {
-  switch (e.type) {
-    case 'invalid_lib':
-      console.log('\n');
-      console.log(red(`Invalid library ${bold(e.value)}`), '\n');
-      console.log('Pick one of: \n  - ', Object.keys(dls).join('\n  - '));
-      console.log(gray('\n~~~~~~~~~~~~~~~~~~~~~'));
-      console.log(code(file, e.location));
-      console.log(gray('~~~~~~~~~~~~~~~~~~~~~\n'));
-      break;
-    case 'invalid_call':
-      console.log('\n');
-      console.log(red(`Invalid call ${bold(e.value)}`), '\n');
-      console.log(gray('\n~~~~~~~~~~~~~~~~~~~~~'));
-      console.log(code(file, e.location));
-      console.log(gray('~~~~~~~~~~~~~~~~~~~~~\n'));
-      break;
-    default:
-      break;
+const displayCompileError = ({
+  compilerMessage, type, value, location,
+}, file) => {
+  const errorMessage = [];
+  const emptyLine = '';
+  const waveLine = '~'.repeat(20);
+
+  errorMessage.push(emptyLine);
+  errorMessage.push(red(`${compilerMessage} ${bold(value)}\n`));
+
+  if (type === 'invalid_lib') {
+    errorMessage.push('Pick one of:');
+    errorMessage.push(...dls.map((libName) => `  - ${libName}`));
   }
+
+  errorMessage.push(emptyLine);
+  errorMessage.push(gray(waveLine));
+  errorMessage.push(formatCodeError(file, location));
+  errorMessage.push(gray(waveLine));
+
+  return errorMessage.join('\n');
 };
 
-// eslint-disable-next-line consistent-return
 module.exports = (file, turbo, evalMode) => {
-  global.turbo = turbo;
-
   try {
     const ast = parseAST(file);
-    const compiled = compile(ast);
+    const compiled = compile(turbo)(ast);
 
     return evalMode ? compiled : beautify(compiled, { indent_size: 2, space_in_empty_paren: true });
   } catch (e) {
-    if (e instanceof CompileError) {
-      displayError(e, file);
-    } else {
-      throw e;
-    }
+    if (e instanceof CompileError) return displayCompileError(e, file);
+
+    throw e;
   }
 };

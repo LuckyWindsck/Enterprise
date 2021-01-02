@@ -163,7 +163,7 @@ function peg$parse(input, options) {
       peg$c15 = "final immutable void main () {",
       peg$c16 = peg$literalExpectation("final immutable void main () {", false),
       peg$c17 = function(body) { return { type: "mainMethod", body } },
-      peg$c18 = function(head, tail) { return list(head, tail, 1) },
+      peg$c18 = function(head, tail) { return list(head, tail) },
       peg$c19 = ";;;",
       peg$c20 = peg$literalExpectation(";;;", false),
       peg$c21 = "Accelerate",
@@ -804,7 +804,7 @@ function peg$parse(input, options) {
       peg$c656 = peg$literalExpectation("String", false),
       peg$c657 = "=",
       peg$c658 = peg$literalExpectation("=", false),
-      peg$c659 = function(name, value) { return v("string", name, value) },
+      peg$c659 = function(name, value) { return variable("string", name, value) },
       peg$c660 = peg$otherExpectation("string"),
       peg$c661 = "\"",
       peg$c662 = peg$literalExpectation("\"", false),
@@ -839,7 +839,7 @@ function peg$parse(input, options) {
       peg$c691 = peg$literalExpectation("u", false),
       peg$c692 = "Bool",
       peg$c693 = peg$literalExpectation("Bool", false),
-      peg$c694 = function(name, value) { return v("bool", name, value) },
+      peg$c694 = function(name, value) { return variable("bool", name, value) },
       peg$c695 = "True",
       peg$c696 = peg$literalExpectation("True", false),
       peg$c697 = "False",
@@ -847,8 +847,8 @@ function peg$parse(input, options) {
       peg$c699 = function() { return text() === "True" },
       peg$c700 = "Null",
       peg$c701 = peg$literalExpectation("Null", false),
-      peg$c702 = function(name, value) { return v("null", name, value) },
-      peg$c703 = function(name, value) { return v("money", name, value) },
+      peg$c702 = function(name, value) { return variable("null", name, value) },
+      peg$c703 = function(name, value) { return variable("money", name, value) },
       peg$c704 = function(n, mm) { return parseFloat(n) * (mm ? mm : 1) },
       peg$c705 = ".",
       peg$c706 = peg$literalExpectation(".", false),
@@ -873,7 +873,7 @@ function peg$parse(input, options) {
       peg$c725 = peg$classExpectation([["0", "9"]], false, false),
       peg$c726 = /^[1-9]/,
       peg$c727 = peg$classExpectation([["1", "9"]], false, false),
-      peg$c728 = function(name, value) { return v("list:int", name, value) },
+      peg$c728 = function(name, value) { return variable("list:int", name, value) },
       peg$c729 = "[",
       peg$c730 = peg$literalExpectation("[", false),
       peg$c731 = "]",
@@ -884,9 +884,9 @@ function peg$parse(input, options) {
       peg$c736 = peg$literalExpectation(",", false),
       peg$c737 = function(head, element) { return element },
       peg$c738 = function(head, tail) { return [head, ...tail] },
-      peg$c739 = function(name, value) { return v("list:string", name, value) },
-      peg$c740 = function(name, value) { return v("list:bool", name, value) },
-      peg$c741 = function(name, value) { return v("list:null", name, value) },
+      peg$c739 = function(name, value) { return variable("list:string", name, value) },
+      peg$c740 = function(name, value) { return variable("list:bool", name, value) },
+      peg$c741 = function(name, value) { return variable("list:null", name, value) },
       peg$c742 = peg$otherExpectation("if"),
       peg$c743 = "(",
       peg$c744 = peg$literalExpectation("(", false),
@@ -904,7 +904,7 @@ function peg$parse(input, options) {
       peg$c756 = peg$literalExpectation("while", false),
       peg$c757 = function(head, tail) { return binary(head, tail) },
       peg$c758 = function(expr) { return Object.assign({ parens: true }, expr) },
-      peg$c759 = function(operator, argument) { return {type: 'unary',  operator, argument} },
+      peg$c759 = function(operator, argument) { return {type: 'unary', operator, argument} },
       peg$c760 = "!",
       peg$c761 = peg$literalExpectation("!", false),
       peg$c762 = "*",
@@ -8449,7 +8449,14 @@ function peg$parse(input, options) {
   }
 
 
-    const { CompileError, dls, call, lib, comment, v, map, list, reduce, binary } = require('./initializer')
+    const {
+      helperFunc: {
+        list, lib,
+      },
+      createNode: {
+        call, comment, variable, binary,
+      },
+    } = require('./initializer');
 
 
   peg$result = peg$startRuleFunction();

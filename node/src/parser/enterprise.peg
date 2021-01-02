@@ -7,7 +7,14 @@
  */
 
 {
-  const { CompileError, dls, call, lib, comment, v, map, list, reduce, binary } = require('./initializer')
+  const {
+    helperFunc: {
+      list, lib,
+    },
+    createNode: {
+      call, comment, variable, binary,
+    },
+  } = require('./initializer');
 }
 
 // Main stuff
@@ -34,7 +41,7 @@ MainMethod "main method" =
 
 Statements =
   head:Statement tail:(__ Statement)*
-  { return list(head, tail, 1) }
+  { return list(head, tail) }
 
 Statement =
   Mutate / MoneyDecl / BoolDecl / StringDecl / NullDecl / MoneyListDecl /
@@ -111,7 +118,7 @@ VarName = [a-z] C? C? C? C? C? C? C? { return { type: "varName", value: text() }
 
 StringDecl =
   "var" _ "String" _ name:VarName _ "=" _ value:(StringLiteral / Call) _ StatementEnd
-  { return v("string", name, value) }
+  { return variable("string", name, value) }
 
 StringLiteral "string" =
   '"' chars:DoubleStringChar* '"'
@@ -142,7 +149,7 @@ EscapeChar = SingleEscapeChar / DecimalDigit / "x" / "u"
 
 BoolDecl =
   "var" _ "Bool" _ name:VarName _ "=" _ value:BoolLiteral _ StatementEnd
-  { return v("bool", name, value) }
+  { return variable("bool", name, value) }
 
 BoolLiteral =
   ("True" / "False")
@@ -152,7 +159,7 @@ BoolLiteral =
 
 NullDecl =
   "var" _ "Null" _ name:VarName _ "=" _ value:NullLiteral _ StatementEnd
-  { return v("null", name, value) }
+  { return variable("null", name, value) }
 
 NullLiteral =
   "Null"
@@ -162,7 +169,7 @@ NullLiteral =
 
 MoneyDecl =
   "var" _ "Money" _ name:VarName _ "=" _ value:MoneyLiteral _ StatementEnd
-  { return v("money", name, value) }
+  { return variable("money", name, value) }
 
 MoneyLiteral =
   n:(FloatLiteral) mm:(MoneyMaker)?
@@ -190,7 +197,7 @@ NonZeroDigit = [1-9]
 
 MoneyListDecl =
   "var" _ "List" _ "Money" _ name:VarName _ "=" _ value:MoneyListLiteral _ StatementEnd
-  { return v("list:int", name, value) }
+  { return variable("list:int", name, value) }
 
 MoneyListLiteral =
   "[" __ elements:MoneyElementList? __ "]"
@@ -205,7 +212,7 @@ MoneyElementList =
 
 StringListDecl =
   "var" _ "List" _ "String" _ name:VarName _ "=" _ value:StringListLiteral _ StatementEnd
-  { return v("list:string", name, value) }
+  { return variable("list:string", name, value) }
 
 StringListLiteral =
   "[" __ elements:StringElementList? __ "]"
@@ -220,7 +227,7 @@ StringElementList =
 
 BoolListDecl =
   "var" _ "List" _ "Bool" _ name:VarName _ "=" _ value:BoolListLiteral _ StatementEnd
-  { return v("list:bool", name, value) }
+  { return variable("list:bool", name, value) }
 
 BoolListLiteral =
   "[" __ elements:BoolElementList? __ "]"
@@ -235,7 +242,7 @@ BoolElementList =
 
 NullListDecl =
   "var" _ "List" _ "Null" _ name:VarName _ "=" _ value:NullListLiteral _ StatementEnd
-  { return v("list:null", name, value) }
+  { return variable("list:null", name, value) }
 
 NullListLiteral =
   "[" __ elements:NullElementList? __ "]"
@@ -280,7 +287,7 @@ BinaryUnit =
 
 Unary =
   Call / Operable / operator:UnaryOp __ argument:Unary
-  { return {type: 'unary',  operator, argument} }
+  { return {type: 'unary', operator, argument} }
 
 UnaryOp = "!"
 MathOp = "*" / "/" / "%" / "+" / "-"
@@ -296,7 +303,7 @@ Operable = value:(VarName / BoolLiteral / MoneyLiteral / StringLiteral / NullLit
 
 HeaderInstructions =
   head:Import tail:(__ Import)*
-  { return list(head, tail, 1) }
+  { return list(head, tail) }
 
 
 

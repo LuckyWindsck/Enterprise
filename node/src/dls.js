@@ -2,10 +2,10 @@
   This code is property of Enterprise™.
 © */
 
-const dls = {
-  'IO.write.delegator.dlIOWriteDelegator': 'dlIOWriteDelegator',
-  'IO.read.delegator.dlIOReadDelegator': 'dlIOReadDelegator',
-  'String.contains.delegator.dlStringContainsDelegator': 'dlStringContainsDelegator',
-};
+const dls = [
+  'IO.write.delegator.dlIOWriteDelegator',
+  'IO.read.delegator.dlIOReadDelegator',
+  'String.contains.delegator.dlStringContainsDelegator',
+];
 
 module.exports = dls;

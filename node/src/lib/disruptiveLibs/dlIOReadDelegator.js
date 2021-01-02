@@ -12,7 +12,5 @@ const read = (question) => {
     resolve(answer);
     ___rl.close();
   }));
-};
-`,
-  type: 'String',
+};`,
 };
