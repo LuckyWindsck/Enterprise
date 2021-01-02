@@ -111,6 +111,7 @@ const displayError = (e, file) => {
       console.log(gray('\n~~~~~~~~~~~~~~~~~~~~~'))
       console.log(code(file, e.location))
       console.log(gray('~~~~~~~~~~~~~~~~~~~~~\n'))
+      break
     case 'invalid_call':
       console.log('\n')
       console.log(red(`Invalid call ${bold(e.value)}`), '\n')
