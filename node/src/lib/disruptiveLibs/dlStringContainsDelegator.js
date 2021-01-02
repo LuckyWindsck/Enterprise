@@ -1,7 +1,7 @@
 module.exports = {
-  fn: "contains",
+  fn: 'contains',
   code: `
   const contains = (str, part) => str.includes(part)
   `,
-  type: "String"
+  type: 'String',
 };

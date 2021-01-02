@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
-const ast = require('../src/ast')
-const compile = require('../src/compile')
+const fs = require('fs');
+const ast = require('../src/ast');
+const compile = require('../src/compile');
 
 const option = {
   turbo: [
@@ -11,14 +11,14 @@ const option = {
       description: 'Turbo mode',
       default: false,
       type: 'boolean',
-    }
+    },
   ],
   input: [
     'input',
     {
       description: 'Input file',
       type: 'string',
-    }
+    },
   ],
   output: [
     'output',
@@ -27,10 +27,11 @@ const option = {
       alias: 'o',
       default: false,
       type: 'boolean',
-    }
-  ]
-}
+    },
+  ],
+};
 
+// eslint-disable-next-line no-unused-expressions
 require('yargs')
   .option(...option.turbo)
   .command({
@@ -38,12 +39,12 @@ require('yargs')
     description: 'Compile',
     builder: (yargs) => yargs.positional(...option.input).option(...option.output),
     handler: (argv) => {
-      const code = compile(argv.input, argv.turbo)
+      const code = compile(argv.input, argv.turbo);
 
       if (argv.outfile) {
-        fs.writeFileSync(argv.input.replace('E™', 'js'), code, 'utf8')
+        fs.writeFileSync(argv.input.replace('E™', 'js'), code, 'utf8');
       } else {
-        console.log(code)
+        console.log(code);
       }
     },
   })
@@ -52,7 +53,7 @@ require('yargs')
     description: 'Display ast',
     builder: (yargs) => yargs.positional(...option.input),
     handler: (argv) => {
-      console.log(JSON.stringify(ast(argv.input), null, 2))
+      console.log(JSON.stringify(ast(argv.input), null, 2));
     },
   })
   .command({
@@ -60,7 +61,8 @@ require('yargs')
     description: 'Eval',
     builder: (yargs) => yargs.positional(...option.input),
     handler: (argv) => {
-      eval(compile(argv.input, argv.turbo))
+      // eslint-disable-next-line no-eval
+      eval(compile(argv.input, argv.turbo));
     },
   })
   .command({
@@ -68,4 +70,4 @@ require('yargs')
     description: 'Downloads examples',
     handler: (argv) => {},
   })
-  .argv
+  .argv;

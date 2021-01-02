@@ -1,5 +1,5 @@
 module.exports = {
-  fn: "read",
+  fn: 'read',
   code: `
   const ___rl = require('readline').createInterface({
     input: process.stdin,
@@ -11,5 +11,5 @@ module.exports = {
     ___rl.close()
   }))
   `,
-  type: "String"
+  type: 'String',
 };

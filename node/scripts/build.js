@@ -1,19 +1,19 @@
-const fs = require('fs')
-const peg = require('pegjs')
+const fs = require('fs');
+const peg = require('pegjs');
 
-const enterpriseComment = `/*©
+const enterpriseComment = `/* ©
   This code is property of Enterprise™.
-©*/
+© */
 
-`
+`;
 
-const enterprisePeg = fs.readFileSync('./src/parser/enterprise.peg', 'utf8')
+const enterprisePeg = fs.readFileSync('./src/parser/enterprise.peg', 'utf8');
 
 const source = peg.generate(enterprisePeg, {
-  format: "commonjs",
-  output: "source"
-})
+  format: 'commonjs',
+  output: 'source',
+});
 
-const output = enterpriseComment + source
+const output = enterpriseComment + source;
 
-fs.writeFileSync('./src/parser/enterprise.js', output, 'utf8')
+fs.writeFileSync('./src/parser/enterprise.js', output, 'utf8');
