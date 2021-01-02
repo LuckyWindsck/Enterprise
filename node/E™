@@ -4,23 +4,43 @@ const fs = require('fs')
 const ast = require('./ast')
 const compile = require('./compile')
 
+const option = {
+  turbo: [
+    'turbo',
+    {
+      description: 'Turbo mode',
+      default: false,
+      type: 'boolean',
+    }
+  ],
+  input: [
+    'input',
+    {
+      description: 'Input file',
+      type: 'string',
+    }
+  ],
+  output: [
+    'output',
+    {
+      description: 'Output file',
+      alias: 'o',
+      default: false,
+      type: 'boolean',
+    }
+  ]
+}
+
 require('yargs')
-  .option('turbo', {
-    default: false,
-    type: 'boolean',
-  })
-  .option('output', {
-    alias: 'o',
-    default: false,
-    type: 'boolean',
-  })
+  .option(...option.turbo)
   .command({
     command: 'compile [input]',
     description: 'Compile',
+    builder: (yargs) => yargs.positional(...option.input).option(...option.output),
     handler: (argv) => {
       const code = compile(argv.input, argv.turbo)
 
-      if (argv.file) {
+      if (argv.outfile) {
         fs.writeFileSync(argv.input.replace('E™', 'js'), code, 'utf8')
       } else {
         console.log(code)
@@ -30,6 +50,7 @@ require('yargs')
   .command({
     command: 'ast [input]',
     description: 'Display ast',
+    builder: (yargs) => yargs.positional(...option.input),
     handler: (argv) => {
       console.log(JSON.stringify(ast(argv.input), null, 2))
     },
@@ -37,6 +58,7 @@ require('yargs')
   .command({
     command: 'eval [input]',
     description: 'Eval',
+    builder: (yargs) => yargs.positional(...option.input),
     handler: (argv) => {
       eval(compile(argv.input, argv.turbo))
     },
