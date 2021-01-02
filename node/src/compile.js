@@ -2,11 +2,10 @@
   This code is property of Enterprise™.
 ©*/
 
-const { highlight } = require('cli-highlight')
+const fs = require('fs')
+const { gray, red, bold } = require('colors/safe')
 
 const parseAST = require('./ast')
-const fs = require('fs')
-const { gray, red, green, yellow, bold } = require('colors/safe')
 
 const compile = (ast) => {
   return ast.map(compileNode).filter(Boolean).join('\n')
