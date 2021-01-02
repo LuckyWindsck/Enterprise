@@ -8471,7 +8471,7 @@ function peg$parse(input, options) {
 
     const lib = (libName, location) => {
       if(dls[libName]) {
-        const {fn, type} = require(`./disruptiveLibs/${dls[libName]}`)
+        const {fn, type} = require(`./lib/disruptiveLibs/${dls[libName]}`)
 
         global.includedDLs[fn] = type
         return dls[libName]

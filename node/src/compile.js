@@ -25,7 +25,7 @@ const compileNode = (node) => {
     case 'comment':
       return null
     case 'import':
-      return require(`./disruptiveLibs/${node.lib}`).code
+      return require(`./lib/disruptiveLibs/${node.lib}`).code
     case 'finalDisruptiveClass':
       return `
       class ${node.name} { ${compile(node.body)} }

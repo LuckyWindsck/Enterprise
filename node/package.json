@@ -7,8 +7,8 @@
   "license": "/© This code is property of Enterprise™. ©/",
   "homepage": "https://github.com/joaomilho/Enterprise-Web3.0",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/joaomilho/Enterprise-Web3.0"
+    "type": "git",
+    "url": "https://github.com/joaomilho/Enterprise-Web3.0"
   },
   "dependencies": {
     "cli-highlight": "^2.1.4",
@@ -20,8 +20,8 @@
     "test": "echo 'ITS OK DAMNIT'"
   },
   "bin": {
-    "E™": "./E™",
-    "ETM": "./E™",
-    "enterprise-web": "./E™"
+    "E™": "./bin/E™",
+    "ETM": "./bin/E™",
+    "enterprise-web": "./bin/E™"
   }
 }
