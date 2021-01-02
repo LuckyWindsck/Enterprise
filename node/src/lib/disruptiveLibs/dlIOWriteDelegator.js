@@ -1,5 +1,6 @@
 module.exports = {
-  code: 'function write(x) { console.log(x) }',
+  code: `const write = console.log
+`,
   fn: 'write',
   type: 'Null',
 };

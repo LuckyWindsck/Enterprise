@@ -4,16 +4,19 @@
 
 const fs = require('fs');
 const { gray, red, bold } = require('colors/safe');
+const beautify = require('js-beautify').js;
 
 const parseAST = require('./ast');
 const CompileError = require('./CompileError');
 const dls = require('./dls');
 
-const delay = (fnCall) => (global.turbo
-  ? fnCall
-  : `await new Promise(r => {
+const delay = (fnCall) => (
+  global.turbo
+    ? fnCall
+    : `await new Promise(r => {
     setTimeout(async () => { r(await ${fnCall}) }, 1000)
-  })`);
+  })`
+);
 
 const compile = (ast) => {
   const compileNode = (node) => {
@@ -24,29 +27,27 @@ const compile = (ast) => {
         // eslint-disable-next-line import/no-dynamic-require, global-require
         return require(`./lib/disruptiveLibs/${node.lib}`).code;
       case 'finalDisruptiveClass':
-        return `
-        class ${node.name} { ${compile(node.body)} }
-        new ${node.name}().main()`;
+        return `class ${node.name} { ${compile(node.body)} }
+
+new ${node.name}().main()`;
       case 'mainMethod':
         return `async main () {
-          ${compile(node.body)}
-        }`;
+  ${compile(node.body)}
+}`;
       case 'var':
         return `var ${node.name} = ${compileNode(node.value)}`;
       case 'while':
         return `while (${compileNode(node.test)}) {
-          ${compile(node.body)}
-        }`;
+  ${compile(node.body)}
+}`;
       case 'if':
         return `if (${compileNode(node.test)}) {
-          ${compile(node.then)}
-        } else {
-          ${compile(node.else)}
-        }`;
+  ${compile(node.then)}
+} else {
+  ${compile(node.else)}
+}`;
       case 'binary':
-        return `${compileNode(node.left)} ${node.operator} ${compileNode(
-          node.right,
-        )}`;
+        return `${compileNode(node.left)} ${node.operator} ${compileNode(node.right)}`;
       case 'call':
         return delay(`${node.callee}(${node.args.map(compileNode).join(', ')})`);
       case 'mutate':
@@ -106,10 +107,9 @@ const displayError = (e, file) => {
 module.exports = (file, turbo) => {
   global.turbo = turbo;
 
-  let ast;
   try {
-    ast = parseAST(file);
-    return compile(ast);
+    const ast = parseAST(file);
+    return beautify(compile(ast), { indent_size: 2, space_in_empty_paren: true });
   } catch (e) {
     if (e instanceof CompileError) {
       displayError(e, file);
