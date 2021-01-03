@@ -10,11 +10,13 @@ const parseAST = require('./ast');
 const CompileError = require('./CompileError');
 const dls = require('./dls');
 
-const delay = (turbo) => (fnCall) => (
-  turbo
+const delay = (turbo) => (fnCall) => {
+  const delayedFnCall = turbo
     ? fnCall
-    : `await new Promise((resolve) => {\nsetTimeout(async () => { resolve(await ${fnCall}) }, 1000)\n})`
-);
+    : `new Promise((resolve) => { setTimeout(async () => { resolve(await ${fnCall}) }, 1000) })`;
+
+  return `await ${delayedFnCall}`;
+};
 
 const compile = (turbo) => function compileNodeList(ast) {
   const compileNode = (node) => {
@@ -27,19 +29,19 @@ const compile = (turbo) => function compileNodeList(ast) {
         code = `${require(`./lib/disruptiveLibs/${node.lib}`).code}\n`;
         break;
       case 'finalDisruptiveClass':
-        code = `class ${node.name} { ${compileNodeList(node.body)} }\n\n(new ${node.name}()).main()`;
+        code = `class ${node.name} {${compileNodeList(node.body)}}\n\nnew ${node.name}().main()`;
         break;
       case 'mainMethod':
-        code = `async main () {\n${compileNodeList(node.body)}\n}`;
+        code = `async main () {${compileNodeList(node.body)}}`;
         break;
       case 'var':
-        code = `var ${node.name} = ${compileNode(node.value)}`;
+        code = `var ${node.name}=${compileNode(node.value)}`;
         break;
       case 'while':
-        code = `while (${compileNode(node.test)}) {\n${compileNodeList(node.body)}\n}`;
+        code = `while (${compileNode(node.test)}) {${compileNodeList(node.body)}}`;
         break;
       case 'if':
-        code = `if (${compileNode(node.test)}) {\n${compileNodeList(node.then)}\n} else {\n${compileNodeList(node.else)}\n}`;
+        code = `if (${compileNode(node.test)}) {${compileNodeList(node.then)}} else {${compileNodeList(node.else)}}`;
         break;
       case 'binary':
         code = `${compileNode(node.left)} ${node.operator} ${compileNode(node.right)}`;
